@@ -23,6 +23,7 @@ type DeliveryMode = "teste" | "completo";
 export function RadarTool() {
   const [stage, setStage] = useState<Stage>({ kind: "idle" });
   const [clientName, setClientName] = useState("");
+  const [instagramHandle, setInstagramHandle] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("teste");
 
   async function handleFile(file: File) {
@@ -35,19 +36,29 @@ export function RadarTool() {
   function reset() {
     setStage({ kind: "idle" });
     setClientName("");
+    setInstagramHandle("");
     setDeliveryMode("teste");
   }
 
   return (
     <div className="flex flex-col gap-5">
       <StepCard step={1} title="Dados do atendimento" description="Aparece nos PDFs e nas mensagens prontas">
-        <input
-          type="text"
-          value={clientName}
-          onChange={(e) => setClientName(e.target.value)}
-          placeholder="Nome do cliente — ex.: Ana Souza"
-          className="w-full max-w-sm rounded-md border border-brand-border bg-black/40 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-brand-red focus:outline-none"
-        />
+        <div className="flex flex-wrap gap-3">
+          <input
+            type="text"
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+            placeholder="Nome do cliente — ex.: Ana Souza"
+            className="w-full max-w-sm rounded-md border border-brand-border bg-black/40 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-brand-red focus:outline-none"
+          />
+          <input
+            type="text"
+            value={instagramHandle}
+            onChange={(e) => setInstagramHandle(e.target.value.replace(/^@+/, ""))}
+            placeholder="@ do Instagram — ex.: ana.souza"
+            className="w-full max-w-xs rounded-md border border-brand-border bg-black/40 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-brand-red focus:outline-none"
+          />
+        </div>
       </StepCard>
 
       {stage.kind !== "result" && (
@@ -113,9 +124,17 @@ export function RadarTool() {
               </div>
 
               {deliveryMode === "teste" ? (
-                <SampleSection entries={stage.result.naoReciprocos} clientName={clientName} />
+                <SampleSection
+                  entries={stage.result.naoReciprocos}
+                  clientName={clientName}
+                  instagramHandle={instagramHandle}
+                />
               ) : (
-                <DeliverySection entries={stage.result.naoReciprocos} clientName={clientName} />
+                <DeliverySection
+                  entries={stage.result.naoReciprocos}
+                  clientName={clientName}
+                  instagramHandle={instagramHandle}
+                />
               )}
             </div>
           </StepCard>

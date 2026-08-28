@@ -27,7 +27,13 @@ function newDoc(): jsPDF {
   return new jsPDF({ unit: "pt", format: "a4" });
 }
 
-function drawHeader(doc: jsPDF, clientName: string, blockIndex: number, blockCount: number): number {
+function drawHeader(
+  doc: jsPDF,
+  clientName: string,
+  instagramHandle: string,
+  blockIndex: number,
+  blockCount: number
+): number {
   let y = MARGIN;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
@@ -36,7 +42,7 @@ function drawHeader(doc: jsPDF, clientName: string, blockIndex: number, blockCou
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text(`Cliente: ${clientName || "—"}`, MARGIN, y);
+  doc.text(`Cliente: ${clientName || "—"}${instagramHandle ? ` (@${instagramHandle})` : ""}`, MARGIN, y);
   y += 16;
   doc.text(`Bloco ${blockIndex} de ${blockCount}`, MARGIN, y);
   y += 20;
@@ -63,14 +69,15 @@ function drawFooterInstructions(doc: jsPDF) {
 
 export function buildBlockPdf(params: {
   clientName: string;
+  instagramHandle?: string;
   blockIndex: number;
   blockCount: number;
   offset: number;
   entries: ExportEntry[];
 }): Blob {
-  const { clientName, blockIndex, blockCount, offset, entries } = params;
+  const { clientName, instagramHandle = "", blockIndex, blockCount, offset, entries } = params;
   const doc = newDoc();
-  let y = drawHeader(doc, clientName, blockIndex, blockCount);
+  let y = drawHeader(doc, clientName, instagramHandle, blockIndex, blockCount);
   const footerStartsAt = PAGE_HEIGHT - MARGIN - (SAFE_RHYTHM_LINES.length + 1) * 13 - 20;
 
   doc.setFont("helvetica", "normal");
@@ -80,7 +87,7 @@ export function buildBlockPdf(params: {
     if (y > footerStartsAt) {
       drawFooterInstructions(doc);
       doc.addPage();
-      y = drawHeader(doc, clientName, blockIndex, blockCount);
+      y = drawHeader(doc, clientName, instagramHandle, blockIndex, blockCount);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10.5);
     }
@@ -93,8 +100,12 @@ export function buildBlockPdf(params: {
   return doc.output("blob");
 }
 
-export function buildSamplePdf(params: { clientName: string; entries: ExportEntry[] }): Blob {
-  const { clientName, entries } = params;
+export function buildSamplePdf(params: {
+  clientName: string;
+  instagramHandle?: string;
+  entries: ExportEntry[];
+}): Blob {
+  const { clientName, instagramHandle = "", entries } = params;
   const doc = newDoc();
   let y = MARGIN;
   doc.setFont("helvetica", "bold");
@@ -103,7 +114,7 @@ export function buildSamplePdf(params: { clientName: string; entries: ExportEntr
   y += 24;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text(`Cliente: ${clientName || "—"}`, MARGIN, y);
+  doc.text(`Cliente: ${clientName || "—"}${instagramHandle ? ` (@${instagramHandle})` : ""}`, MARGIN, y);
   y += 16;
   doc.text(`${entries.length} de ${entries.length} contas da amostra (sem reciprocidade)`, MARGIN, y);
   y += 24;

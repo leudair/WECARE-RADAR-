@@ -5,7 +5,15 @@ import type { ExportEntry } from "@/lib/instagram/types";
 import { buildAllBlocksZip, buildBlockPdf, chunk } from "@/lib/instagram/pdf";
 import { downloadBlob } from "@/lib/download";
 
-export function DeliverySection({ entries, clientName }: { entries: ExportEntry[]; clientName: string }) {
+export function DeliverySection({
+  entries,
+  clientName,
+  instagramHandle,
+}: {
+  entries: ExportEntry[];
+  clientName: string;
+  instagramHandle: string;
+}) {
   const [blockSize, setBlockSize] = useState(100);
   const [zipping, setZipping] = useState(false);
 
@@ -20,6 +28,7 @@ export function DeliverySection({ entries, clientName }: { entries: ExportEntry[
     const offset = index * blockSize;
     const blob = buildBlockPdf({
       clientName,
+      instagramHandle,
       blockIndex: index + 1,
       blockCount: blocks.length,
       offset,
@@ -35,6 +44,7 @@ export function DeliverySection({ entries, clientName }: { entries: ExportEntry[
         const offset = index * blockSize;
         const blob = buildBlockPdf({
           clientName,
+          instagramHandle,
           blockIndex: index + 1,
           blockCount: blocks.length,
           offset,

@@ -7,7 +7,15 @@ import { CopyButton } from "./copy-button";
 
 const SAMPLE_SIZE = 10;
 
-export function SampleSection({ entries, clientName }: { entries: ExportEntry[]; clientName: string }) {
+export function SampleSection({
+  entries,
+  clientName,
+  instagramHandle,
+}: {
+  entries: ExportEntry[];
+  clientName: string;
+  instagramHandle: string;
+}) {
   const sample = entries.slice(0, SAMPLE_SIZE);
   const sampleText = sample.map((e, i) => `${i + 1}. @${e.username} — ${e.href}`).join("\n");
 
@@ -21,7 +29,9 @@ export function SampleSection({ entries, clientName }: { entries: ExportEntry[];
           <CopyButton text={sampleText} label="Copiar lista" />
           <button
             type="button"
-            onClick={() => downloadBlob(buildSamplePdf({ clientName, entries: sample }), "amostra-wecare-radar.pdf")}
+            onClick={() =>
+              downloadBlob(buildSamplePdf({ clientName, instagramHandle, entries: sample }), "amostra-wecare-radar.pdf")
+            }
             className="inline-flex items-center gap-1.5 rounded-md border border-brand-border px-3 py-1.5 text-sm font-medium text-zinc-200 hover:border-brand-red/50 hover:bg-white/5"
           >
             Baixar PDF

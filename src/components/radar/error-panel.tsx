@@ -34,16 +34,14 @@ const MESSAGES: Record<AnalysisError["code"], { title: string; body: string }> =
 export function ErrorPanel({ error, onReset }: { error: AnalysisError; onReset: () => void }) {
   const info = MESSAGES[error.code];
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-red-200 bg-red-50 p-6 dark:border-red-900/60 dark:bg-red-950/30">
-      <p className="text-sm font-semibold text-red-800 dark:text-red-300">⚠️ {info.title}</p>
-      <p className="text-sm text-red-700 dark:text-red-300/90">{info.body}</p>
-      {error.detail && (
-        <p className="text-xs text-red-500 dark:text-red-400/80">Detalhe técnico: {error.detail}</p>
-      )}
+    <div className="flex flex-col gap-3 rounded-xl border border-brand-red/40 bg-brand-red-soft p-6">
+      <p className="text-sm font-semibold text-red-300">⚠️ {info.title}</p>
+      <p className="text-sm text-red-200/90">{info.body}</p>
+      {error.detail && <p className="text-xs text-red-400/70">Detalhe técnico: {error.detail}</p>}
       <button
         type="button"
         onClick={onReset}
-        className="self-start rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/40"
+        className="self-start rounded-md border border-brand-red/50 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-brand-red/10"
       >
         Tentar outro arquivo
       </button>

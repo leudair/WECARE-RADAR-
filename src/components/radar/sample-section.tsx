@@ -12,9 +12,9 @@ export function SampleSection({ entries, clientName }: { entries: ExportEntry[];
   const sampleText = sample.map((e, i) => `${i + 1}. @${e.username} — ${e.href}`).join("\n");
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-white">
           Amostra grátis ({sample.length} de {entries.length})
         </h3>
         <div className="flex gap-2">
@@ -22,17 +22,22 @@ export function SampleSection({ entries, clientName }: { entries: ExportEntry[];
           <button
             type="button"
             onClick={() => downloadBlob(buildSamplePdf({ clientName, entries: sample }), "amostra-wecare-radar.pdf")}
-            className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            className="inline-flex items-center gap-1.5 rounded-md border border-brand-border px-3 py-1.5 text-sm font-medium text-zinc-200 hover:border-brand-red/50 hover:bg-white/5"
           >
             Baixar PDF
           </button>
         </div>
       </div>
-      <ol className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-2">
+      <ol className="grid grid-cols-1 gap-1 rounded-lg border border-brand-border bg-black/30 p-3 text-sm sm:grid-cols-2">
         {sample.map((entry, i) => (
-          <li key={entry.username} className="truncate text-zinc-700 dark:text-zinc-300">
+          <li key={entry.username} className="truncate text-zinc-300">
             {i + 1}.{" "}
-            <a href={entry.href} target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <a
+              href={entry.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-red hover:underline"
+            >
               @{entry.username}
             </a>
           </li>

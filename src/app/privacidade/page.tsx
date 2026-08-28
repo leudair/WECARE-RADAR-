@@ -1,11 +1,9 @@
 export default function PrivacidadePage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 py-10 sm:px-6">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-        Política de privacidade — WeCare Radar
-      </h1>
+      <h1 className="text-xl font-semibold text-white">Política de privacidade — WeCare Radar</h1>
 
-      <div className="flex flex-col gap-3 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+      <div className="flex flex-col gap-3 text-sm leading-relaxed text-zinc-300">
         <p>
           O WeCare Radar identifica, a partir do export oficial que você mesmo solicita ao
           Instagram, quais contas que você segue não retribuem o follow. Não pedimos sua senha,

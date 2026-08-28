@@ -19,7 +19,11 @@ export function CopyButton({ text, label = "Copiar" }: { text: string; label?: s
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+      className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        copied
+          ? "bg-emerald-600 text-white"
+          : "bg-brand-red text-white hover:bg-brand-red-dark"
+      }`}
     >
       {copied ? "Copiado!" : label}
     </button>

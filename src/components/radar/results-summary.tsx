@@ -4,16 +4,12 @@ function StatCard({ label, value, emphasis }: { label: string; value: string; em
   return (
     <div
       className={`flex flex-col gap-1 rounded-xl border p-4 ${
-        emphasis
-          ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
-          : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+        emphasis ? "border-brand-red bg-brand-red-soft" : "border-brand-border bg-black/30"
       }`}
     >
-      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</span>
+      <span className="text-xs font-medium text-zinc-500">{label}</span>
       <span
-        className={`text-2xl font-semibold tabular-nums ${
-          emphasis ? "text-emerald-700 dark:text-emerald-300" : "text-zinc-900 dark:text-zinc-50"
-        }`}
+        className={`text-2xl font-semibold tabular-nums ${emphasis ? "text-red-300" : "text-white"}`}
       >
         {value}
       </span>

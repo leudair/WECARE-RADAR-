@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ExportEntry } from "@/lib/instagram/types";
 import { buildAllBlocksZip, buildBlockPdf, chunk } from "@/lib/instagram/pdf";
 import { downloadBlob } from "@/lib/download";
+import { logAtendimento } from "@/lib/atendimentos";
 
 export function DeliverySection({
   entries,
@@ -16,12 +17,24 @@ export function DeliverySection({
 }) {
   const [blockSize, setBlockSize] = useState(100);
   const [zipping, setZipping] = useState(false);
+  const loggedRef = useRef(false);
 
   const blocks = useMemo(() => chunk(entries, blockSize), [entries, blockSize]);
 
   function fileName(index: number) {
     const safeName = (clientName || "cliente").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
     return `wecare-radar-${safeName}-bloco-${index + 1}-de-${blocks.length}.pdf`;
+  }
+
+  function registerDeliveryOnce() {
+    if (loggedRef.current) return;
+    loggedRef.current = true;
+    logAtendimento({
+      clienteNome: clientName,
+      clienteInstagram: instagramHandle,
+      acao: "lista_completa",
+      totalNaoReciprocos: entries.length,
+    });
   }
 
   function downloadOne(index: number) {
@@ -35,6 +48,7 @@ export function DeliverySection({
       entries: blocks[index],
     });
     downloadBlob(blob, fileName(index));
+    registerDeliveryOnce();
   }
 
   async function downloadAll() {
@@ -54,6 +68,7 @@ export function DeliverySection({
       });
       const zipBlob = await buildAllBlocksZip(files);
       downloadBlob(zipBlob, `wecare-radar-${(clientName || "cliente").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}-completo.zip`);
+      registerDeliveryOnce();
     } finally {
       setZipping(false);
     }

@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import type { ExportEntry } from "@/lib/instagram/types";
 import { buildSamplePdf } from "@/lib/instagram/pdf";
 import { downloadBlob } from "@/lib/download";
+import { logAtendimento } from "@/lib/atendimentos";
 import { CopyButton } from "./copy-button";
 
 const SAMPLE_SIZE = 10;
@@ -18,6 +20,20 @@ export function SampleSection({
 }) {
   const sample = entries.slice(0, SAMPLE_SIZE);
   const sampleText = sample.map((e, i) => `${i + 1}. @${e.username} — ${e.href}`).join("\n");
+  const loggedRef = useRef(false);
+
+  function handleDownload() {
+    downloadBlob(buildSamplePdf({ clientName, instagramHandle, entries: sample }), "amostra-wecare-radar.pdf");
+    if (!loggedRef.current) {
+      loggedRef.current = true;
+      logAtendimento({
+        clienteNome: clientName,
+        clienteInstagram: instagramHandle,
+        acao: "amostra_gratis",
+        totalNaoReciprocos: entries.length,
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -29,9 +45,7 @@ export function SampleSection({
           <CopyButton text={sampleText} label="Copiar lista" />
           <button
             type="button"
-            onClick={() =>
-              downloadBlob(buildSamplePdf({ clientName, instagramHandle, entries: sample }), "amostra-wecare-radar.pdf")
-            }
+            onClick={handleDownload}
             className="inline-flex items-center gap-1.5 rounded-md border border-brand-border px-3 py-1.5 text-sm font-medium text-zinc-200 hover:border-brand-red/50 hover:bg-white/5"
           >
             Baixar PDF

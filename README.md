@@ -51,3 +51,31 @@ Abra [http://localhost:3000](http://localhost:3000).
 ## Página de privacidade
 
 `/privacidade` — política de uma página para enviar junto com a proposta comercial.
+
+## Login da equipe e relatório de atendimentos
+
+A partir da Fase 2, a ferramenta exige login (feito pela equipe, não pelo cliente) e registra
+automaticamente quem atendeu qual cliente e quando. Isso usa o [Supabase](https://supabase.com)
+(gratuito) para autenticação e para guardar só o **registro do atendimento** — nunca a lista de
+seguidores/seguindo do cliente, que continua sendo processada só no navegador e descartada.
+
+### Configuração (uma vez só)
+
+1. Crie uma conta grátis em [supabase.com](https://supabase.com) e um novo projeto.
+2. Em **Project Settings → API**, copie o **Project URL** e a **anon public key**.
+3. Copie `.env.local.example` para `.env.local` e preencha as duas variáveis.
+4. No **SQL Editor** do Supabase, rode o conteúdo de [`supabase/schema.sql`](./supabase/schema.sql)
+   para criar a tabela `atendimentos`.
+5. Em **Authentication → Users**, cadastre manualmente um usuário (e-mail + senha) para cada
+   funcionária que vai usar a ferramenta.
+6. Na Vercel, adicione as mesmas duas variáveis de ambiente (`NEXT_PUBLIC_SUPABASE_URL` e
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY`) em **Project Settings → Environment Variables** e faça um novo
+   deploy.
+
+### Como funciona no dia a dia
+
+- Toda página exige login (redireciona para `/login` se não estiver autenticado).
+- Sempre que uma funcionária gera a amostra grátis ou a lista completa, um registro é salvo
+  automaticamente: quem, para qual cliente (nome e @), quando, e qual ação.
+- A página `/relatorio` (link no cabeçalho, visível só logado) mostra esse histórico pra quem
+  administra a equipe.

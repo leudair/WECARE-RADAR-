@@ -19,7 +19,6 @@ export interface AnalysisResult {
 }
 
 export type AnalysisErrorCode =
-  | "html-export"
   | "full-export"
   | "missing-followers"
   | "missing-following"

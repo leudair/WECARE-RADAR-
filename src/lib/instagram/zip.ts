@@ -1,32 +1,34 @@
 import JSZip from "jszip";
 import type { AnalysisOutcome, ExportEntry } from "./types";
 
-// Basename matchers for the files we actually process.
-const FOLLOWERS_JSON = /^followers(_\d+)?\.json$/i;
-const FOLLOWING_JSON = /^following\.json$/i;
+// Basename matchers for the files we actually process. O Instagram exporta
+// "Seguidores e seguindo" tanto em JSON quanto em HTML — aceitamos os dois,
+// pra atendente nao precisar se preocupar em escolher o formato certo.
+const FOLLOWERS_FILE = /^followers(_\d+)?\.(json|html)$/i;
+const FOLLOWING_FILE = /^following\.(json|html)$/i;
 
 // Companion files that ship inside the same "Followers and following"
 // export category but aren't needed for the reciprocity calculation.
 // Their presence is expected and must NOT trigger the full-export block.
-const KNOWN_COMPANION_JSON = new Set(
-  [
-    "following_hashtags.json",
-    "pending_follow_requests.json",
-    "recently_unfollowed_profiles.json",
-    "blocked_profiles.json",
-    "close_friends.json",
-    "follow_requests_you've_received.json",
-    "follow_requests_you_ve_received.json",
-    "follow_requests_you_have_received.json",
-    "hashtags.json",
-  ].map((name) => name.toLowerCase()),
-);
-
-const FOLLOWERS_OR_FOLLOWING_HTML = /^(followers(_\d+)?|following)\.html$/i;
+const KNOWN_COMPANION_STEMS = new Set([
+  "following_hashtags",
+  "pending_follow_requests",
+  "recently_unfollowed_profiles",
+  "blocked_profiles",
+  "close_friends",
+  "follow_requests_you've_received",
+  "follow_requests_you_ve_received",
+  "follow_requests_you_have_received",
+  "hashtags",
+]);
 
 function basename(path: string): string {
   const parts = path.split("/");
   return parts[parts.length - 1];
+}
+
+function stem(name: string): string {
+  return name.replace(/\.(json|html)$/i, "").toLowerCase();
 }
 
 function normalizeUsername(raw: string): string {
@@ -52,13 +54,30 @@ function entriesFromStringListItems(items: RawStringListItem[]): ExportEntry[] {
   return out;
 }
 
-function parseFollowersJson(raw: string): ExportEntry[] {
+// Nas paginas HTML do export, cada conta e um link pro perfil — mesmo
+// padrao tanto na lista de seguidores quanto na de seguindo.
+function parseInstagramHtml(raw: string): ExportEntry[] {
+  const doc = new DOMParser().parseFromString(raw, "text/html");
+  const anchors = doc.querySelectorAll<HTMLAnchorElement>('a[href^="https://www.instagram.com/"]');
+  const out: ExportEntry[] = [];
+  anchors.forEach((a) => {
+    const href = a.getAttribute("href") || "";
+    const username = normalizeUsername(a.textContent || href.replace("https://www.instagram.com/", ""));
+    if (!username) return;
+    out.push({ username, href });
+  });
+  return out;
+}
+
+function parseFollowersEntries(path: string, raw: string): ExportEntry[] {
+  if (/\.html$/i.test(path)) return parseInstagramHtml(raw);
   const json = JSON.parse(raw);
   const items: RawStringListItem[] = Array.isArray(json) ? json : [];
   return entriesFromStringListItems(items);
 }
 
-function parseFollowingJson(raw: string): ExportEntry[] {
+function parseFollowingEntries(path: string, raw: string): ExportEntry[] {
+  if (/\.html$/i.test(path)) return parseInstagramHtml(raw);
   const json = JSON.parse(raw);
   const items: RawStringListItem[] = Array.isArray(json?.relationships_following)
     ? json.relationships_following
@@ -79,27 +98,21 @@ export async function analyzeExportZip(file: File): Promise<AnalysisOutcome> {
     return { ok: false, code: "empty-zip" };
   }
 
-  // 1. Detect an HTML-format export before anything else — same category,
-  // wrong format, needs a fresh JSON export.
-  if (paths.some((p) => FOLLOWERS_OR_FOLLOWING_HTML.test(basename(p)))) {
-    return { ok: false, code: "html-export" };
-  }
-
-  // 2. Detect a full ("Todas as suas informações") export: any .json file
-  // whose basename isn't one we recognize from the "Followers and
-  // following" category signals other categories are present.
-  const unexpectedJson = paths.find((p) => {
+  // Detecta um export completo ("Todas as suas informações"): qualquer
+  // .json/.html cujo nome nao seja um dos esperados na categoria
+  // "Seguidores e seguindo" sinaliza que outras categorias vieram junto.
+  const unexpected = paths.find((p) => {
     const name = basename(p);
-    if (!/\.json$/i.test(name)) return false;
-    if (FOLLOWERS_JSON.test(name) || FOLLOWING_JSON.test(name)) return false;
-    return !KNOWN_COMPANION_JSON.has(name.toLowerCase());
+    if (!/\.(json|html)$/i.test(name)) return false;
+    if (FOLLOWERS_FILE.test(name) || FOLLOWING_FILE.test(name)) return false;
+    return !KNOWN_COMPANION_STEMS.has(stem(name));
   });
-  if (unexpectedJson) {
-    return { ok: false, code: "full-export", detail: unexpectedJson };
+  if (unexpected) {
+    return { ok: false, code: "full-export", detail: unexpected };
   }
 
-  const followerPaths = paths.filter((p) => FOLLOWERS_JSON.test(basename(p)));
-  const followingPaths = paths.filter((p) => FOLLOWING_JSON.test(basename(p)));
+  const followerPaths = paths.filter((p) => FOLLOWERS_FILE.test(basename(p)));
+  const followingPaths = paths.filter((p) => FOLLOWING_FILE.test(basename(p)));
 
   if (followerPaths.length === 0) {
     return { ok: false, code: "missing-followers" };
@@ -112,7 +125,7 @@ export async function analyzeExportZip(file: File): Promise<AnalysisOutcome> {
     const followersMap = new Map<string, ExportEntry>();
     for (const path of followerPaths) {
       const raw = await zip.file(path)!.async("string");
-      for (const entry of parseFollowersJson(raw)) {
+      for (const entry of parseFollowersEntries(path, raw)) {
         if (!followersMap.has(entry.username)) followersMap.set(entry.username, entry);
       }
     }
@@ -121,7 +134,7 @@ export async function analyzeExportZip(file: File): Promise<AnalysisOutcome> {
     const followingMap = new Map<string, ExportEntry>();
     for (const path of followingPaths) {
       const raw = await zip.file(path)!.async("string");
-      for (const entry of parseFollowingJson(raw)) {
+      for (const entry of parseFollowingEntries(path, raw)) {
         if (!followingMap.has(entry.username)) followingMap.set(entry.username, entry);
       }
     }

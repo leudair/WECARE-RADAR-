@@ -1,10 +1,6 @@
 import type { AnalysisError } from "@/lib/instagram/types";
 
 const MESSAGES: Record<AnalysisError["code"], { title: string; body: string }> = {
-  "html-export": {
-    title: "Export no formato errado (HTML)",
-    body: "Esse export foi gerado em HTML. Peça um novo export ao cliente escolhendo o formato JSON (Central de Contas → Baixar suas informações → Formato: JSON).",
-  },
   "full-export": {
     title: "Isso parece um export completo",
     body: 'Encontramos arquivos fora de "Seguidores e seguindo" nesse .zip. Por segurança, recusamos e apagamos este arquivo automaticamente — não processamos exports completos. Peça ao cliente um novo export escolhendo apenas "Seguidores e seguindo".',

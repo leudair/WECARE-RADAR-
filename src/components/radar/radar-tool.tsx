@@ -65,7 +65,7 @@ export function RadarTool() {
         <StepCard
           step={2}
           title="Enviar export do Instagram"
-          description='Central de Contas → Baixar suas informações → apenas "Seguidores e seguindo" → formato JSON'
+          description='Central de Contas → Baixar suas informações → apenas "Seguidores e seguindo" (qualquer formato)'
         >
           <UploadPanel onFile={handleFile} busy={stage.kind === "busy"} />
           {stage.kind === "error" && (

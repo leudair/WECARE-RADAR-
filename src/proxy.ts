@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_COOKIE_OPTIONS } from "./lib/supabase/cookie-options";
 
-const PUBLIC_PATHS = ["/login", "/privacidade"];
+const PUBLIC_PATHS = ["/login", "/privacidade", "/esqueci-senha"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

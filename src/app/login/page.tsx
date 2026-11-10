@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -79,6 +80,10 @@ export default function LoginPage() {
         >
           {busy ? "Entrando…" : "Entrar"}
         </button>
+
+        <Link href="/esqueci-senha" className="text-center text-sm text-zinc-500 hover:text-white">
+          Esqueci minha senha
+        </Link>
       </form>
     </div>
   );

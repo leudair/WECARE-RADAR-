@@ -25,8 +25,8 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 1. Peça ao cliente o export oficial do Instagram: **Perfil → Menu → Central de Contas → Suas
    informações e permissões → Baixar suas informações** → escolher **"Algumas das suas
-   informações"** → marcar apenas **"Seguidores e seguindo"** → formato **JSON** → baixar no
-   dispositivo.
+   informações"** → marcar apenas **"Seguidores e seguindo"** → qualquer formato (JSON ou HTML) →
+   baixar no dispositivo.
 2. O cliente envia o `.zip` pelo WhatsApp (sem descompactar).
 3. Suba o `.zip` na ferramenta (arraste ou clique na área de upload).
 4. A ferramenta calcula automaticamente seguindo, seguidores, recíprocos e não-recíprocos.
@@ -39,7 +39,6 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 - **Export completo** ("Todas as suas informações"): a ferramenta detecta e bloqueia
   automaticamente o processamento — peça um novo export só com "Seguidores e seguindo".
-- **Formato HTML**: a ferramenta avisa e pede para gerar de novo em JSON.
 
 ## Restrições do produto (não mudar sem revisar o PRD)
 
